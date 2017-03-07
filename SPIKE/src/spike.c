@@ -1082,7 +1082,7 @@ s_send_lines()
       if (current_spike->fd==-1)
 	{
 	  printf("tried to send to a closed socket!\n");
-	  return 0;
+	  exit(1);
 	}
       c=s_get_databuf();
       totalsize=s_get_size();
@@ -1160,7 +1160,7 @@ spike_send()
       if (current_spike->fd==-1)
 	{
 	  printf("tried to send to a closed socket!\n");
-	  return 0;
+	  exit(1);
 	}
       alarm(5);
       signal(SIGALRM,(void*)sighandler);
