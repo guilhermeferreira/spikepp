@@ -1,0 +1,56 @@
+// A "SPIKE" is a fuzzed messages that can be sent to a
+// network service to (hopefully) induce errors.
+
+// There is not support to create multiple separate SPIKES
+// using one single script. If you have multiple different
+// message types with fixed data that you want to fuzz, such
+// as the strings that represent our various supported commands
+// such as CONNECT, CONNACK, DISCONNECT, etc, you therefore
+// need to use individual SPIKE scripts that specify this data
+// using constructs such as the s_string command.
+
+// Read TCP SYN packet
+s_read_packet();
+
+// Read MQTT CONNECT packet
+s_read_packet();
+
+// ========================================================
+// 3.2. CONNACK
+// ========================================================
+
+printf("Sending CONNACK\n");
+
+// --------------------------------------------------------
+// Fixed header
+// --------------------------------------------------------
+// byte 1 | Message Type  | DUP flag | QoS level | RETAIN |
+//        | 0 | 0 | 1 | 0 |     x    |  x  |  x  |    x   |
+s_binary("20");
+
+// byte 2 | Remaining Length
+s_binary_block_size_byte("variable_header");
+
+s_block_start("variable_header");
+
+// --------------------------------------------------------
+// Variable header
+// --------------------------------------------------------
+// byte 1 | Topic Name Compression Response
+s_binary("00");
+
+// byte 2 | Connect Return Code
+// 
+// Dec    | Hex  | Meaning
+// 0      | 0x00 | Connection Accepted
+// 1      | 0x01 | Connection Refused: unacceptable protocol version
+// 2      | 0x02 | Connection Refused: identifier rejected
+// 3      | 0x03 | Connection Refused: server unavailable
+// 4      | 0x04 | Connection Refused: bad user name or password
+// 5      | 0x05 | Connection Refused: not authorized
+// 6-255  |      | Reserved for future use
+s_binary("00");
+
+s_block_end("variable_header");
+
+
